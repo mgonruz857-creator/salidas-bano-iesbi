@@ -62,3 +62,6 @@ Cada cambio en la rama `main` se publica solo en https://mgonruz857-creator.gith
 - `configurarHoja`: crea las pestañas que falten (no borra nada).
 - `limpiarCache`: si la app no refleja un cambio hecho en la hoja.
 - `cerrarSalidasAbiertas`: cierra salidas que se quedaron abiertas de días anteriores.
+- `activarModoPruebas` / `desactivarModoPruebas` (**solo en PRUEBAS**): la app funciona como si fuera el
+  día y la hora de `INICIO_RELOJ_PRUEBAS` (arriba del todo en `Code.gs`) y el reloj avanza desde ahí.
+  Sirve para probar en fin de semana o por la tarde. La app lo indica con una franja ámbar.

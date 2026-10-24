@@ -235,3 +235,16 @@ test('guardar horario: solo directivos, valida filas y sustituye solo a los doce
   assert.equal(lista.profesorado.find((p) => p.email === 'docente.uno@g.educaand.es').tramos, 1);
   assert.deepEqual(lista.grupos, GRUPOS);
 });
+
+test('modo pruebas: el reloj simulado empieza en INICIO_RELOJ_PRUEBAS y se apaga', () => {
+  const e = entorno();
+  const post = (req) => JSON.parse(e.ctx.doPost({ postData: { contents: JSON.stringify(req) } }).texto);
+  const token = post({ accion: 'login', email: 'docente.uno@g.educaand.es', clave: 'infante26' }).token;
+  e.ctx.activarModoPruebas();
+  const est = post({ accion: 'estado', token });
+  assert.equal(est.reloj_simulado, true);
+  assert.equal(est.franja.nombre, '1ª hora');
+  assert.equal(e.ctx.Utilities.formatDate(new Date(est.ahora), 'Europe/Madrid', 'yyyy-MM-dd HH:mm'), '2026-10-23 09:25');
+  e.ctx.desactivarModoPruebas();
+  assert.equal(post({ accion: 'estado', token }).reloj_simulado, false);
+});

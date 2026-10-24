@@ -86,6 +86,11 @@ export default function Aula({ usuario, avisar }: Props) {
   return (
     <div className="space-y-4">
       {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">{error}</p>}
+      {estado.reloj_simulado && (
+        <p className="text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+          Modo pruebas: la app usa un reloj simulado ({new Date(ahora).toLocaleString('es-ES', { timeZone: 'Europe/Madrid', weekday: 'long', hour: '2-digit', minute: '2-digit' })}).
+        </p>
+      )}
 
       {/* Franja actual y cupo del centro */}
       <section className="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center gap-4 justify-between">

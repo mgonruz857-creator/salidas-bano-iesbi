@@ -46,6 +46,7 @@ export interface Estado {
   ahora: number;
   usuario: Usuario;
   franja: Franja;
+  reloj_simulado: boolean;
   cupo: { global: number; aula: number; minutos: number; min_justificacion: number; min_excepcional: number };
   grupos: string[];
   grupo: string;

@@ -18,7 +18,8 @@
  * Los identificadores de alumno y los códigos de grupo (1ESO_A, 2BACH_C, 1_FRIO…) son los mismos
  * que usa la app de convivencia (SIGC-BI), para poder integrarlas más adelante.
  *
- * Funciones para ejecutar desde el editor: configurarHoja, limpiarCache, cerrarSalidasAbiertas.
+ * Funciones para ejecutar desde el editor: configurarHoja, limpiarCache, cerrarSalidasAbiertas,
+ * activarModoPruebas y desactivarModoPruebas (solo en la hoja de PRUEBAS).
  */
 
 // ───────────────────────── Configuración ─────────────────────────
@@ -38,6 +39,10 @@ var FILAS_POR_LECTURA = 1500;
 var DURACION_SESION_SEG = 21600;    // 6 horas (máximo de CacheService), se renueva con el uso
 var MAX_INTENTOS = 5;
 var BLOQUEO_SEG = 900;              // 15 minutos
+
+// MODO PRUEBAS (solo en la hoja de PRUEBAS): día y hora en los que empieza el reloj simulado,
+// "AAAA-MM-DD HH:mm". Se activa con activarModoPruebas y desde ese momento el reloj avanza normal.
+var INICIO_RELOJ_PRUEBAS = '2026-10-23 09:25'; // viernes, 5 minutos antes de la hora preferente A
 
 var HOJA_PROFESORADO = 'Profesorado';
 var HOJA_ALUMNADO = 'Alumnado';
@@ -109,7 +114,7 @@ function doPost(e) {
   } catch (err) {
     return salida_(fallo_('ERROR_PETICION'));
   }
-  return salida_(atender_(req, new Date()));
+  return salida_(atender_(req, ahoraServidor_()));
 }
 
 function atender_(req, ahora) {
@@ -378,6 +383,7 @@ function estado_(usuario, datos, ahora) {
     ahora: ahora.getTime(),
     usuario: { email: usuario.email, nombre: usuario.nombre, aula: usuario.aula, directivo: usuario.directivo },
     franja: franja,
+    reloj_simulado: relojSimulado_() !== null,
     cupo: { global: CUPO_GLOBAL, aula: CUPO_AULA, minutos: MINUTOS_MAXIMOS,
       min_justificacion: MIN_JUSTIFICACION, min_excepcional: MIN_JUSTIFICACION_EXCEPCIONAL },
     grupos: grupos,
@@ -710,6 +716,38 @@ function onEdit(e) {
 }
 
 // ───────────────────────── Funciones de editor ─────────────────────────
+
+/** Reloj simulado: { real, ficticio } en milisegundos, o null si está apagado. */
+function relojSimulado_() {
+  var v = PropertiesService.getScriptProperties().getProperty('RELOJ_PRUEBAS');
+  return v ? JSON.parse(v) : null;
+}
+
+function ahoraServidor_() {
+  var r = relojSimulado_();
+  var ahora = new Date();
+  return r ? new Date(r.ficticio + (ahora.getTime() - r.real)) : ahora;
+}
+
+/**
+ * SOLO EN PRUEBAS: la app funciona como si fuera el día y la hora de INICIO_RELOJ_PRUEBAS
+ * (y el reloj avanza desde ahí). Para volver a la hora real: desactivarModoPruebas.
+ */
+function activarModoPruebas() {
+  var m = /^(\d{4}-\d{2}-\d{2}) (\d{1,2}):(\d{2})$/.exec(INICIO_RELOJ_PRUEBAS);
+  if (!m) throw new Error('INICIO_RELOJ_PRUEBAS debe tener la forma "2026-10-23 09:25".');
+  // Instante de Madrid: se parte de las 12:00 UTC de ese día y se corrige con la hora que marca Madrid
+  var base = new Date(m[1] + 'T12:00:00Z');
+  var ficticio = base.getTime() + ((Number(m[2]) * 60 + Number(m[3])) - minutosDe_(base)) * 60000;
+  PropertiesService.getScriptProperties().setProperty('RELOJ_PRUEBAS',
+    JSON.stringify({ real: new Date().getTime(), ficticio: ficticio }));
+  Logger.log('Modo pruebas activado: la app cree que es ' + Utilities.formatDate(new Date(ficticio), ZONA, 'EEEE dd/MM/yyyy HH:mm'));
+}
+
+function desactivarModoPruebas() {
+  PropertiesService.getScriptProperties().deleteProperty('RELOJ_PRUEBAS');
+  Logger.log('Modo pruebas desactivado: la app vuelve a la hora real.');
+}
 
 /** Crea las tres pestañas con sus cabeceras si no existen. No borra nada. */
 function configurarHoja() {
