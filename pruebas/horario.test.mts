@@ -49,5 +49,6 @@ test('correspondencia de docentes y grupos con la app', () => {
   assert.equal(grupoAutomatico('1ºESO A', grupos), '1ESO_A');
   assert.equal(grupoAutomatico('2º BACH-B', grupos), '2BACH_B');
   assert.equal(grupoAutomatico('3ºESO C', grupos), '', 'no existe en la app');
-  assert.equal(grupoAutomatico('1ºFPB PCP', grupos), '', 'FP se elige a mano');
+  assert.equal(grupoAutomatico('1ºFPB PCP', grupos), '1_INF', 'FP Básica de Informática');
+  assert.equal(grupoAutomatico('2ºFPB PCP', grupos), '', '2_INF no existe en esta lista');
 });

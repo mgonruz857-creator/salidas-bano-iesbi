@@ -112,12 +112,15 @@ export function buscarDocente(nombreSeneca: string, profesorado: { email: string
   return '';
 }
 
-/** "1ºESO A" → "1ESO_A", "2º BACH-B" → "2BACH_B". Lo demás (FP, desdobles) se elige a mano. */
+/** "1ºESO A" → "1ESO_A", "2º BACH-B" → "2BACH_B", "1ºFPB PCP" → "1_INF". Lo demás (ciclos, desdobles) se elige a mano. */
 export function grupoAutomatico(texto: string, existentes: string[]): string {
   const t = normalizarNombre(texto).replace(/º|ª/g, '');
   let codigo = '';
   const m = /^(\d)\s*(ESO|BACH|BTO|BACHILLERATO)\s*-?\s*([A-Z])\b/.exec(t);
   if (m) codigo = m[1] + (m[2] === 'ESO' ? 'ESO' : 'BACH') + '_' + m[3];
+  // FP Básica de Informática: en Séneca "1ºFPB PCP", en convivencia 1_INF
+  const fpb = /^(\d)\s*FPB\b/.exec(t);
+  if (fpb) codigo = fpb[1] + '_INF';
   const directo = existentes.find((g) => g.toUpperCase() === t.replace(/\s+/g, '_'));
   if (directo) return directo;
   return existentes.includes(codigo) ? codigo : '';
