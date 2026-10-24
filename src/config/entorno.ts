@@ -12,7 +12,8 @@ export const ENTORNO: Entorno = 'PRUEBAS' as Entorno; // 'PRUEBAS' o 'PRODUCCION
 
 const CONFIG: Record<Entorno, { urlApi: string; cuenta: string }> = {
   PRUEBAS: {
-    urlApi: '', // pegar aquí la URL /exec de la implementación de pruebas
+    urlApi:
+      'https://script.google.com/macros/s/AKfycbxWBnl7uvq5jGjeMCK2Baat20Q2vOHybmVp40rJeIcdbrGwCAd49T6c9P0vFXQU31CW/exec',
     cuenta: 'mgonruz857@g.educaand.es',
   },
   PRODUCCION: {
